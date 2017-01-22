@@ -1,9 +1,57 @@
-import cv2, numpy as np, os
-name = ' 7.jpg'
+import cv2, numpy as np, os, pandas as pd
+os.chdir('/Users/yuchen/PycharmProjects/Artmonious/data/')
+
+def labels_dict():
+    df = pd.read_csv("labeled_data.csv")
+    train_df = df[df['type'] == 'train']
+    test_df = df[df['type'] == 'test']
+
+    training_image_ids_labels = zip(train_df['img_id'].values,train_df['group_id'].values)
+    test_image_ids_labels = zip(test_df['img_id'].values,test_df['group_id'].values)
+
+    training_dict = {}
+    test_dict = {}
+
+    for id, label in training_image_ids_labels:
+        training_dict[id] = label
+
+
+    for id, label in test_image_ids_labels:
+        test_dict[id] = label
+
+    return training_dict, test_dict
+
+def create_import_list(dict):
+
+    """
+
+    :param dict:
+    :return:
+    import_list: a list of filenames of training or test sets to import
+    filename_to_id_dict: a dictionary of filenames with their appropriate label
+    """
+
+    import_list = []
+    os.chdir('/Users/yuchen/PycharmProjects/Artmonious/data/labeled_data')
+    for file in os.listdir(os.getcwd()):
+        if file.split(".")[1] not in ['png', 'jpeg', 'jpg']:
+            continue
+        else:
+            import_list.append(file)
+            for id in import_list:
+                if int(id[5:].split(".")[0]) not in dict.keys():
+                    import_list.remove(id)
+
+    filename_to_id_dict = {}
+    for file in import_list:
+        filename_to_id_dict[file] = training_dict[int(file[5:].split(".")[0])]
+
+    return import_list, filename_to_id_dict
+
 
 class ImageModel(object):
 
-    path = '/Users/yuchen/PycharmProjects/Artmonious/data/train1/'
+    path = '/Users/yuchen/PycharmProjects/Artmonious/data/labeled_data/'
 
     def __init__(self, filename):
 
@@ -29,8 +77,8 @@ class ImageModel(object):
         return self.HOG
 
     def process_SIFT(self, image_object):
-        self.SIFT_keypoints = cv2.xfeatures2d.SIFT_create().detect(image_object, None)
-        self.SIFT_image = cv2.drawKeypoints(image_object, self.SIFT_keypoints, a.gray_scale_image,
+        self.SIFT_keypoints, self.SIFT_descriptors = cv2.xfeatures2d.SIFT_create().detectAndCompute(image_object, None)
+        self.SIFT_image = cv2.drawKeypoints(image_object, self.SIFT_keypoints, self.gray_scale_image,
                                             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         return self.SIFT_image
 
@@ -41,13 +89,13 @@ class ImageModel(object):
 
     def process_FAST(self, image_object):
         self.FAST_keypoints = cv2.FastFeatureDetector_create().detect(image_object, None)
-        self.ORB_image = cv2.drawKeypoints(image_object, self.FAST_keypoints, a.gray_scale_image,
+        self.ORB_image = cv2.drawKeypoints(image_object, self.FAST_keypoints, self.gray_scale_image,
                                             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         return self.FAST_keypoints
 
     def process_ORB(self, image_object, keypoints_threshold=500):
         self.ORB_keypoints = cv2.ORB_create(keypoints_threshold).detect(image_object, None)
-        self.ORB_image = cv2.drawKeypoints(image_object, self.ORB_keypoints, a.gray_scale_image,
+        self.ORB_image = cv2.drawKeypoints(image_object, self.ORB_keypoints, self.gray_scale_image,
                                             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         return self.ORB_image
 
@@ -56,27 +104,15 @@ class ImageModel(object):
         cv2.waitKey()
         cv2.destroyAllWindows()
 
+    def resize_image(self, image_object, width, height):
+        print("New dimensions {0} x {1}".format(width, height))
+        return cv2.resize(image_object, (width, height), interpolation= cv2.INTER_AREA)
+
+    def save_image(self, filename, image_object):
+        cv2.imwrite(filename, image_object)
+        print("Image saved as {0}".format(filename))
+
     def display_details(self):
         print("Original object shape: {0}".format(self.original_shape.shape))
         print("Gray scale shape: {0}".format(self.gray_scale_image.shape))
         print("SIFT shape: {0}".format(self.SIFT_image.shape))
-
-
-
-
-
-a = ImageModel(' 7.jpg')
-a.gray_scale()
-a.process_HOG(a.gray_scale_image)
-a.process_SIFT(a.gray_scale_image)
-a.display_image(a.SIFT_image)
-a.process_ORB(a.gray_scale_image)
-a.display_image(a.ORB_image)
-
-sift = cv2.xfeatures2d.SIFT_create()
-keypoints = sift.detect(a.gray_scale_image, None)
-new_image = cv2.drawKeypoints(a.gray_scale_image, keypoints, a.original_image, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
-cv2.imshow("Name", a.gray_scale_image)
-cv2.waitKey()
-cv2.destroyAllWindows()
