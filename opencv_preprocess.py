@@ -81,7 +81,6 @@ class ImageModel(object):
         self.SIFT_image = cv2.drawKeypoints(image_object, self.SIFT_keypoints, self.gray_scale_image,
                                             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         return self.SIFT_image
-
     def process_SURF(self, image_object, threshold=0):
         self.SURF_keypoints, self.SURF_descriptors = \
             cv2.xfeatures2d.SURF_create(hessianThreshold=threshold).detectAndCompute(image_object, None)
@@ -116,3 +115,7 @@ class ImageModel(object):
         print("Original object shape: {0}".format(self.original_shape.shape))
         print("Gray scale shape: {0}".format(self.gray_scale_image.shape))
         print("SIFT shape: {0}".format(self.SIFT_image.shape))
+
+class MutableLabel(object):
+    def __init__(self,label_name):
+        self.label_name = label_name
