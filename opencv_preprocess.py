@@ -117,5 +117,12 @@ class ImageModel(object):
         print("SIFT shape: {0}".format(self.SIFT_image.shape))
 
 class MutableLabel(object):
+
+    """
+    We use MutableLabel class here to create "identical" keys
+    in Python. The keys for the cluster labels repeat (ie. 1,2
+    3, etc. and the values are the cluster centers.
+    """
+
     def __init__(self,label_name):
         self.label_name = label_name
