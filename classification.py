@@ -1,5 +1,5 @@
 import cv2, numpy as np, os, pandas as pd
-from opencv_preprocess import ImageModel, create_import_list, labels_dict, MutableLabel
+from opencv_preprocess import ImageModel, create_import_list, labels_dict
 from sklearn.cluster import KMeans
 
 os.chdir('/Users/yuchen/PycharmProjects/Artmonious/data/')
