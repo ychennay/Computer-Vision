@@ -2,6 +2,11 @@ import cv2, numpy as np, os, pandas as pd
 os.chdir('/Users/yuchen/PycharmProjects/Artmonious/data/')
 
 def labels_dict():
+
+    """
+    :return: returns dictionary of training files and test files
+    """
+
     df = pd.read_csv("labeled_data.csv")
     train_df = df[df['type'] == 'train']
     test_df = df[df['type'] == 'test']
@@ -24,8 +29,7 @@ def labels_dict():
 def create_import_list(dict):
 
     """
-
-    :param dict:
+    :param dict: a dictionary of filename images to import
     :return:
     import_list: a list of filenames of training or test sets to import
     filename_to_id_dict: a dictionary of filenames with their appropriate label
@@ -44,16 +48,30 @@ def create_import_list(dict):
 
     filename_to_id_dict = {}
     for file in import_list:
-        filename_to_id_dict[file] = training_dict[int(file[5:].split(".")[0])]
+        filename_to_id_dict[file] = dict[int(file[5:].split(".")[0])]
 
     return import_list, filename_to_id_dict
 
 
 class ImageModel(object):
 
+    """
+    Class that will create instances of ImageModels, containing various properties of each
+    picture that is uploaded, including different versions of the image as it undergoes
+    transformations
+    """
+
     path = '/Users/yuchen/PycharmProjects/Artmonious/data/labeled_data/'
 
     def __init__(self, filename):
+
+        """
+        This initial method sets the working directory to the path specified in the
+        class variable path, and also sets various initial properties of the image (including
+        the original image array itself)
+        :param filename: name of the image to upload
+        """
+
 
         self.filepath = ImageModel.path + filename
         self.filename = filename
@@ -67,6 +85,8 @@ class ImageModel(object):
             print("File {0} not found in {1}.".format(filename, ImageModel.path))
             return
         self.original_shape = self.original_image.shape
+
+
 
     def gray_scale(self):
         self.gray_scale_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
