@@ -52,7 +52,6 @@ def create_import_list(dict):
 
     return import_list, filename_to_id_dict
 
-
 class ImageModel(object):
 
     """
@@ -78,7 +77,7 @@ class ImageModel(object):
         if os.getcwd() != ImageModel.path:
             os.chdir(ImageModel.path)
 
-        if os.path.exists(ImageModel.path + filename):
+        if os.path.exists(ImageModel.path + filename) or os.path.exists(ImageModel.path + "/" +filename):
             self.original_image = cv2.imread(filename)
             print("Image {0} imported with shape {1}".format(filename, self.original_image.shape))
         else:
@@ -135,6 +134,10 @@ class ImageModel(object):
         print("Original object shape: {0}".format(self.original_shape.shape))
         print("Gray scale shape: {0}".format(self.gray_scale_image.shape))
         print("SIFT shape: {0}".format(self.SIFT_image.shape))
+
+    def get_opencv_version(self):
+        from cv2 import __version__
+        print(__version__)
 
 class MutableLabel(object):
 
